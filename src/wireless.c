@@ -5,8 +5,8 @@
 #include "fs_utils.h"
 #include "arducam/arducam.h"
 
-#define TOTAL_PACKETS 162
-#define IMAGE_CHUNK 648
+#define TOTAL_PACKETS 81
+#define IMAGE_CHUNK 1296
 
 extern struct arducam_config config;
 extern uint8_t image_buf[324*324];
@@ -73,7 +73,7 @@ void send_image(const ip_addr_t* source_address, uint8_t* image) {
         }
         printf("Sent package number %d\n", package_number); // DEBUG
         // Small delay to help the receiver keep up with the packets
-        sleep_ms(100);
+        sleep_ms(33);
         // Free the pbuf after sending
         pbuf_free(p);
         // Increment the offset by the size of one image chunk
@@ -92,6 +92,7 @@ void ap_udp_recv_fn(void* arg, struct udp_pcb* recv_pcb, struct pbuf* p, const i
     // If message is correct, take picture, save it and send it back to the 
     // station
     if (strcmp(received_message, "capture image") == 0) {
+        printf("CAPTURING IMAGE\n"); // DEBUG
         arducam_capture_frame(&config);
         save_image_sd(image_buf); //MYTODO: Change to flash
         send_image(source_addr, image_buf);
