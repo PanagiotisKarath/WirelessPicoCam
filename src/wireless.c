@@ -7,12 +7,14 @@
 
 #define TOTAL_PACKETS 81
 #define IMAGE_CHUNK 1296
+#define ACK_TIMEOUT_US 3000 // Half a second
 
 extern struct arducam_config config;
 extern uint8_t image_buf[324*324];
 extern const int port;
 
 uint16_t total_packages_received;
+volatile bool ack_received = false;
 volatile uint16_t packet_received_num = 0;
 
 void send_message(const ip_addr_t* remote_address, const char* message) {
@@ -45,6 +47,7 @@ void send_image(const ip_addr_t* source_address, uint8_t* image) {
     // message contains 4 rows/columns of the whole image
     uint8_t package_number = 0;
     uint32_t offset = 0;
+    int retries = 0;
 
     // Create udp pcb, bind it to port and connect to access point's IP
     struct udp_pcb *pcb = udp_new();
@@ -67,13 +70,30 @@ void send_image(const ip_addr_t* source_address, uint8_t* image) {
             return;
         }
 
-        int err = udp_send(pcb, p);
-        if (err != ERR_OK) {
-            printf("ERROR: message could not be sent (%d)\n", err);
-        }
-        printf("Sent package number %d\n", package_number); // DEBUG
+        retries = 0;
+        ack_received = false;
+
+        do {
+            int err = udp_send(pcb, p);
+            if (err != ERR_OK) {
+                printf("ERROR: message could not be sent (%d)\n", err);
+            }
+            printf("Sent package number %d\n", package_number); // DEBUG
+
+            uint64_t start_time = time_us_64();
+            while (!ack_received && (time_us_64() - start_time) < ACK_TIMEOUT_US);
+
+            if (!ack_received) {
+                printf("No ACK received for packet %d, retrying (%d)\n", package_number, retries);
+            }
+        } while (!ack_received && ++retries < 2); // Max 3 retries for each packet
+
+        if (!ack_received) {
+            printf("WARNING: packet %d lost\n", package_number);
+        } 
+
         // Small delay to help the receiver keep up with the packets
-        sleep_ms(33);
+        sleep_ms(50);
         // Free the pbuf after sending
         pbuf_free(p);
         // Increment the offset by the size of one image chunk
@@ -89,17 +109,27 @@ void ap_udp_recv_fn(void* arg, struct udp_pcb* recv_pcb, struct pbuf* p, const i
     char received_message[p->tot_len];
     memcpy(received_message, p->payload, p->tot_len);
 
-    // If message is correct, take picture, save it and send it back to the 
-    // station
+    // If message is "capture image", take picture, save it and send it back 
+    // to the station
     if (strcmp(received_message, "capture image") == 0) {
         printf("CAPTURING IMAGE\n"); // DEBUG
         arducam_capture_frame(&config);
         save_image_sd(image_buf); //MYTODO: Change to flash
         send_image(source_addr, image_buf);
     }
+
+    // If message is "ack", change ack_received to true
+    if (strcmp(received_message, "ack") == 0) {
+        printf("acknowledge message received\n"); // DEBUG
+        ack_received = true;
+    }
 }
 
 void sta_udp_recv_fn(void* arg, struct udp_pcb* recv_pcb, struct pbuf* p, const ip_addr_t* source_addr, u16_t source_port) {
+    //Send acknowledge message
+    printf("Message received, sending acknowledgment\n");
+    send_message(source_addr, "ack");
+    
     memcpy(&packet_received_num, p->payload, sizeof(uint8_t));
     if (packet_received_num < TOTAL_PACKETS) {
         memcpy(&image_buf[(packet_received_num - 1) * IMAGE_CHUNK], p->payload + sizeof(uint8_t), IMAGE_CHUNK);

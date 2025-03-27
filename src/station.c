@@ -6,7 +6,7 @@
 #include "wireless.h"
 #include "filesystem/vfs.h"
 
-#define BUTTON_PIN 15
+#define BUTTON_PIN 6
 
 volatile bool message_button_pressed = false;
 
@@ -74,7 +74,7 @@ int main() {
 
         // Poll the cyw43 architecture to process any pending events.
         // Must be called regularly.
-        sleep_ms(100); 
+        sleep_ms(5); 
         cyw43_arch_poll();
     }
 
