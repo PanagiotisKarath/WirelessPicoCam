@@ -71,9 +71,14 @@ void send_image(const ip_addr_t* source_address, uint8_t* image) {
         if (err != ERR_OK) {
             printf("ERROR: message could not be sent (%d)\n", err);
         }
+        sleep_ms(10);
+        err = udp_send(pcb, p);
+        if (err != ERR_OK) {
+            printf("ERROR: message could not be sent (%d)\n", err);
+        }
         printf("Sent package number %d\n", package_number); // DEBUG
         // Small delay to help the receiver keep up with the packets
-        sleep_ms(33);
+        sleep_ms(25);
         // Free the pbuf after sending
         pbuf_free(p);
         // Increment the offset by the size of one image chunk
