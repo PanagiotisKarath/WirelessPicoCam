@@ -7,7 +7,7 @@
 
 #define TOTAL_PACKETS 81
 #define IMAGE_CHUNK 1296
-#define ACK_TIMEOUT_US 3000 // Half a second
+#define ACK_TIMEOUT_US 3000
 
 extern struct arducam_config config;
 extern uint8_t image_buf[324*324];
@@ -81,7 +81,9 @@ void send_image(const ip_addr_t* source_address, uint8_t* image) {
             printf("Sent package number %d\n", package_number); // DEBUG
 
             uint64_t start_time = time_us_64();
-            while (!ack_received && (time_us_64() - start_time) < ACK_TIMEOUT_US);
+            while (!ack_received && (time_us_64() - start_time) < ACK_TIMEOUT_US) {
+                cyw43_arch_poll();
+            }
 
             if (!ack_received) {
                 printf("No ACK received for packet %d, retrying (%d)\n", package_number, retries);
@@ -123,6 +125,8 @@ void ap_udp_recv_fn(void* arg, struct udp_pcb* recv_pcb, struct pbuf* p, const i
         printf("acknowledge message received\n"); // DEBUG
         ack_received = true;
     }
+
+    pbuf_free(p);
 }
 
 void sta_udp_recv_fn(void* arg, struct udp_pcb* recv_pcb, struct pbuf* p, const ip_addr_t* source_addr, u16_t source_port) {
