@@ -53,7 +53,7 @@ target_compile_definitions(${A} PRIVATE
 )
 
 #Specify that littlefs filesystem is used for the Access Point
-target_compile_definitions(${A} PRIVATE USE_SD_FAT)
+target_compile_definitions(${A} PRIVATE USE_FLASH_LFS)
 
 # Generate header from Pico PIO file
 pico_generate_pio_header(${A} ${CMAKE_CURRENT_LIST_DIR}/image.pio)
@@ -62,6 +62,8 @@ pico_generate_pio_header(${A} ${CMAKE_CURRENT_LIST_DIR}/image.pio)
 target_link_libraries(${A}
     pico_cyw43_arch_lwip_poll
     pico_stdlib
+    pico_multicore
+    pico_util
     hardware_i2c
     hardware_dma
     hardware_pio
@@ -116,6 +118,8 @@ target_compile_definitions(${B} PRIVATE USE_SD_FAT)
 target_link_libraries(${B}
     pico_cyw43_arch_lwip_threadsafe_background
     pico_stdlib
+    pico_multicore
+    pico_util
     hardware_i2c
     blockdevice_flash
     blockdevice_heap

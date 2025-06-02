@@ -6,8 +6,7 @@
 #include "lwip/udp.h"
 
 /*
- * Sends initial message to trigger the reading of the temperature. Called by 
- * the Station.
+ * Sends message to specified IP address.
  *
  * @param remote_address IP Address to send the message.
  * @param message Character string to be sent.
@@ -15,7 +14,8 @@
 void send_message (const ip_addr_t* remote_address, const char* message);
 
 /*
- * Sends image back to the station.
+ * Sends image to specified IP address.
+ *
  * @param source_address IP address to send image to.
  * @param image Pointer to first element of the image array
 */

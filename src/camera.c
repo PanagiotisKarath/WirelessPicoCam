@@ -2,7 +2,7 @@
 #include "pico/stdlib.h"
 #include "arducam/arducam.h"
 
-uint8_t image_buf[324*324];
+extern uint8_t image_buf[324*324];
 extern struct arducam_config config;
 
 void hm01b0_setup() {
