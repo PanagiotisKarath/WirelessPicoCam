@@ -108,7 +108,15 @@ the build folder, which you then flash to the Pico microcontrollers. The ```.uf2
 If you are not interested in building the project, you can get the binaries (```.elf``` and ```.uf2``` files) from the "bin" folder.
 
 ## How To Use
-After flashing the binaries, you are now ready to start capturing images. Make sure you insert an SD card in the SD card module, formatted in FAT32. I used a 4GB one and cannot guarantee that the system works with larger capacity cards. Next, supply the server with power **first**. After that, you can supply the **client** with power as well, and wait until the on-board LED on the client turns on. This indicates that it has connected to the server's network. Press the  button and wait for a few seconds for the image file to be transfered. After that remove the SD card and insert it in a PC. ```.pgm``` files are usually readable by default, if not look up for an online ```.pgm``` to ```.jpeg``` or ```.png``` converter.
+After flashing the binaries, follow these steps to use the system.
+
+1. Insert an SD card in the SD card module, formatted in FAT32. I used a 4GB one and cannot guarantee that the system works with larger capacity cards.
+
+2. Supply the server with power **first**. After that, you can supply the client with power as well, and wait until the on-board LED on the client turns on. This indicates that it has connected to the server's network, and is ready to send image capture messages.
+
+3. Press the button and wait for a few seconds for the image file to be transfered.
+
+4. Remove the SD card and insert it in a computer. ```.pgm``` files are usually readable by the default image viewer, if not look up for an online ```.pgm``` to ```.jpeg``` or ```.png``` converter, since these formats are more common and all image viewers support them.
 
 ## Projects Used
 This project would not have been possible without the existence of these open-source projects. Make sure to give them a look.
