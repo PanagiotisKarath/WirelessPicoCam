@@ -5,6 +5,21 @@ This project enables wireless control of a camera module and image file transfer
 ## Demo
 Some images produced by the system are presented below. 
 
+<figure style="text-align:center;">
+  <img src="images/pic_n.jpeg">
+  <figcaption style="text-align:center; font-size:20px;">My cat Nessie on my chair</figcaption>
+</figure>
+
+<figure style="text-align:center;">
+  <img src="images/pic_l.jpeg">
+  <figcaption style="text-align:center; font-size:20px;">A round lamp with a movie poster behind</figcaption>
+</figure>
+
+<figure style="text-align:center;">
+  <img src="images/pic_v.jpeg">
+  <figcaption style="text-align:center; font-size:20px;">An afternoon view</figcaption>
+</figure>
+
 ## Components Used
 The following components were used for the creation of this project:
 
@@ -85,15 +100,18 @@ git clone --recurse-submodules https://github.com/PanagiotisKarath/PicoW-Wireles
   cmake -DPICO_BOARD=pico_w ..
   make
   ```
-  You can optionally write ```make -jN``` where N is the number of "jobs" the compilation is broken to. If you have a lot of cores/threads feel free to increse the number as to decrease the compilation time.
+  You can optionally write ```make -j4``` where 4 is the number of "jobs" the compilation is broken to. If you have a lot of cores/threads feel free to increase the number as to decrease the compilation time.
 
 5. After the process is done, you can find the ```.uf2``` and ```.elf``` files in 
-the build folder, which you then flash to the Pico microcontrollers. The ```.uf2``` files are used for flashing using the BOOTSEL button, while the ```.elf``` files using a Debug Probe.
+the build folder, which you then flash to the Pico microcontrollers. The ```.uf2``` files are used for flashing using the BOOTSEL button, while the ```.elf``` files using a Debug Probe. Specifically, flash ```access_point.uf2``` (or ```access_point.elf```) on the board which has the camera module connected (the server) and ```station.uf2``` (or ```station.elf```) on the board which has the button and the SD card module connected (the client).
 
 If you are not interested in building the project, you can get the binaries (```.elf``` and ```.uf2``` files) from the "bin" folder.
+
+## How To Use
+After flashing the binaries, you are now ready to start capturing images. Make sure you insert an SD card in the SD card module, formatted in FAT32. I used a 4GB one and cannot guarantee that the system works with larger capacity cards. Next, supply the server with power **first**. After that, you can supply the **client** with power as well, and wait until the on-board LED on the client turns on. This indicates that it has connected to the server's network. Press the  button and wait for a few seconds for the image file to be transfered. After that remove the SD card and insert it in a PC. ```.pgm``` files are usually readable by default, if not look up for an online ```.pgm``` to ```.jpeg``` or ```.png``` converter.
 
 ## Projects Used
 This project would not have been possible without the existence of these open-source projects. Make sure to give them a look.
 
-* [MicroPython project](http://micropython.org/) and as a result the DHCP Server implementation.
+* [lwIP](https://savannah.nongnu.org/projects/lwip/), used for the implementation of all networking aspects of the project.
 * [pico-vfs](https://github.com/oyama/pico-vfs) which is a very interesting idea of a virtual file system for the Pico.
